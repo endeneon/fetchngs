@@ -1,23 +1,23 @@
 nextflow_workflow {
 
-    name "Test workflow: sra/main.nf"
+    name "Test workflow: ../workflows/fetchngs.nf"
     script "../main.nf"
-    workflow "SRA"
-    tag "SRA_DOWNLOAD_METHOD_FASTQDL"
+    workflow "FETCHNGS"
+    tag "SRA_DOWNLOAD_METHOD_SRATOOLS"
 
     // Dependencies
+    tag "FASTQ_DOWNLOAD_PREFETCH_FASTERQDUMP_SRATOOLS"
     tag "SRA_IDS_TO_RUNINFO"
     tag "SRA_RUNINFO_TO_FTP"
-    tag "FASTQDL"
     tag "SRA_TO_SAMPLESHEET"
     tag "MULTIQC_MAPPINGS_CONFIG"
 
-    test("Parameters: --download_method fastq-dl") {
+    test("Parameters: --download_method sratools") {
 
         when {
             params {
                 outdir = "$outputDir"
-                download_method = 'fastq-dl'
+                download_method = 'sratools'
             }
             workflow {
                 """
@@ -30,11 +30,12 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success},
                 { assert snapshot(
-                    file(workflow.out.samplesheet[0]).name,
+                    path(workflow.out.samplesheet[0].toString()).fileName.toString(),
                     workflow.out.mappings,
                     workflow.out.sample_mappings,
                     workflow.out.sra_metadata,
-                    workflow.out.versions
+                    //workflow.out.versions,
+                    path("${outputDir}/pipeline_info/nf_core_fetchngs_software_versions.yml").fileName.toString()
                 ).match() }
             )
         }

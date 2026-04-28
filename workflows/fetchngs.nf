@@ -4,14 +4,14 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MULTIQC_MAPPINGS_CONFIG } from '../../modules/local/multiqc_mappings_config'
-include { SRA_FASTQ_FTP           } from '../../modules/local/sra_fastq_ftp'
-include { SRA_IDS_TO_RUNINFO      } from '../../modules/local/sra_ids_to_runinfo'
-include { SRA_RUNINFO_TO_FTP      } from '../../modules/local/sra_runinfo_to_ftp'
-include { ASPERA_CLI              } from '../../modules/local/aspera_cli'
-include { SRA_TO_SAMPLESHEET      } from '../../modules/local/sra_to_samplesheet'
-include { FASTQDL                 } from '../../modules/nf-core/fastqdl/main'
-include { softwareVersionsToYAML  } from '../../subworkflows/nf-core/utils_nfcore_pipeline'
+include { MULTIQC_MAPPINGS_CONFIG } from '../modules/local/multiqc_mappings_config'
+include { SRA_FASTQ_FTP           } from '../modules/local/sra_fastq_ftp'
+include { SRA_IDS_TO_RUNINFO      } from '../modules/local/sra_ids_to_runinfo'
+include { SRA_RUNINFO_TO_FTP      } from '../modules/local/sra_runinfo_to_ftp'
+include { ASPERA_CLI              } from '../modules/local/aspera_cli'
+include { SRA_TO_SAMPLESHEET      } from '../modules/local/sra_to_samplesheet'
+include { FASTQDL                 } from '../modules/nf-core/fastqdl/main'
+include { softwareVersionsToYAML  } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,7 +19,14 @@ include { softwareVersionsToYAML  } from '../../subworkflows/nf-core/utils_nfcor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { FASTQ_DOWNLOAD_PREFETCH_FASTERQDUMP_SRATOOLS } from '../../subworkflows/nf-core/fastq_download_prefetch_fasterqdump_sratools'
+include { FASTQ_DOWNLOAD_PREFETCH_FASTERQDUMP_SRATOOLS } from '../subworkflows/nf-core/fastq_download_prefetch_fasterqdump_sratools'
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+include { paramsSummaryMap       } from 'plugin/nf-schema'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,13 +34,13 @@ include { FASTQ_DOWNLOAD_PREFETCH_FASTERQDUMP_SRATOOLS } from '../../subworkflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow SRA {
+workflow FETCHNGS {
 
     take:
     ids // channel: [ ids ]
 
     main:
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     //
     // MODULE: Get SRA run information for public database ids
@@ -42,7 +49,6 @@ workflow SRA {
         ids,
         params.ena_metadata_fields ?: ''
     )
-    ch_versions = ch_versions.mix(SRA_IDS_TO_RUNINFO.out.versions.first())
 
     //
     // MODULE: Parse SRA run information, create file containing FTP links and read into workflow as [ meta, [reads] ]
@@ -50,7 +56,6 @@ workflow SRA {
     SRA_RUNINFO_TO_FTP (
         SRA_IDS_TO_RUNINFO.out.tsv
     )
-    ch_versions = ch_versions.mix(SRA_RUNINFO_TO_FTP.out.versions.first())
 
     SRA_RUNINFO_TO_FTP
         .out
@@ -101,7 +106,6 @@ workflow SRA {
         SRA_FASTQ_FTP (
             ch_sra_reads.ftp
         )
-        ch_versions = ch_versions.mix(SRA_FASTQ_FTP.out.versions.first())
 
         //
         // SUBWORKFLOW: Download sequencing reads without FTP links using sra-tools.
@@ -110,7 +114,6 @@ workflow SRA {
             ch_sra_reads.sratools,
             params.dbgap_key ? file(params.dbgap_key, checkIfExists: true) : []
         )
-        ch_versions = ch_versions.mix(FASTQ_DOWNLOAD_PREFETCH_FASTERQDUMP_SRATOOLS.out.versions.first())
 
         //
         // MODULE: If Aspera link is provided in run information then download FastQ directly via Aspera CLI and validate with md5sums
@@ -119,12 +122,10 @@ workflow SRA {
             ch_sra_reads.aspera,
             'era-fasp'
         )
-        ch_versions = ch_versions.mix(ASPERA_CLI.out.versions.first())
 
         FASTQDL (
             ch_sra_reads.fastqdl
         )
-        ch_versions = ch_versions.mix(FASTQDL.out.versions)
 
         // Isolate FASTQ channel which will be added to emit block
         SRA_FASTQ_FTP
@@ -160,38 +161,60 @@ workflow SRA {
     SRA_TO_SAMPLESHEET
         .out
         .samplesheet
-        .map { it[1] }
-        .collectFile(name:'tmp_samplesheet.csv', newLine: true, keepHeader: true, sort: { it.baseName })
-        .map { it.text.tokenize('\n').join('\n') }
+        .map { _meta, samplesheet -> samplesheet }
+        .collectFile(name:'tmp_samplesheet.csv', newLine: true, keepHeader: true, sort: { file -> file.baseName })
+        .map { file -> file.text.tokenize('\n').join('\n') }
         .collectFile(name:'samplesheet.csv', storeDir: "${params.outdir}/samplesheet")
         .set { ch_samplesheet }
 
     SRA_TO_SAMPLESHEET
         .out
         .mappings
-        .map { it[1] }
-        .collectFile(name:'tmp_id_mappings.csv', newLine: true, keepHeader: true, sort: { it.baseName })
-        .map { it.text.tokenize('\n').join('\n') }
+        .map { _meta, mappings -> mappings }
+        .collectFile(name:'tmp_id_mappings.csv', newLine: true, keepHeader: true, sort: { file -> file.baseName })
+        .map { file -> file.text.tokenize('\n').join('\n') }
         .collectFile(name:'id_mappings.csv', storeDir: "${params.outdir}/samplesheet")
         .set { ch_mappings }
 
     //
     // MODULE: Create a MutiQC config file with sample name mappings
     //
-    ch_sample_mappings_yml = Channel.empty()
+    ch_sample_mappings_yml = channel.empty()
     if (params.sample_mapping_fields) {
         MULTIQC_MAPPINGS_CONFIG (
             ch_mappings
         )
-        ch_versions = ch_versions.mix(MULTIQC_MAPPINGS_CONFIG.out.versions)
         ch_sample_mappings_yml = MULTIQC_MAPPINGS_CONFIG.out.yml
     }
 
     //
     // Collate and save software versions
     //
-    softwareVersionsToYAML(ch_versions)
-        .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_fetchngs_software_mqc_versions.yml', sort: true, newLine: true)
+    def topic_versions = channel.topic("versions")
+        .distinct()
+        .branch { entry ->
+            versions_file: entry instanceof Path
+            versions_tuple: true
+        }
+
+    def topic_versions_string = topic_versions.versions_tuple
+        .map { process, tool, version ->
+            [ process[process.lastIndexOf(':')+1..-1], "  ${tool}: ${version}" ]
+        }
+        .groupTuple(by:0)
+        .map { process, tool_versions ->
+            tool_versions.unique().sort()
+            "${process}:\n${tool_versions.join('\n')}"
+        }
+
+    softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
+        .mix(topic_versions_string)
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_'  +  'fetchngs_software_'  + 'versions.yml',
+            sort: true,
+            newLine: true
+        ).set { ch_collated_versions }
 
     emit:
     samplesheet     = ch_samplesheet

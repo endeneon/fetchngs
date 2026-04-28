@@ -31,7 +31,11 @@
                     ]
                 ],
                 "2": [
-                    "versions.yml:md5,a51a1dfc6308d71058ddc12c46101dd3"
+                    [
+                        "ASPERA_CLI",
+                        "aspera_cli",
+                        "4.14.0"
+                    ]
                 ],
                 "fastq": [
                     [
@@ -61,15 +65,19 @@
                         ]
                     ]
                 ],
-                "versions": [
-                    "versions.yml:md5,a51a1dfc6308d71058ddc12c46101dd3"
+                "versions_aspera_cli": [
+                    [
+                        "ASPERA_CLI",
+                        "aspera_cli",
+                        "4.14.0"
+                    ]
                 ]
             }
         ],
+        "timestamp": "2026-04-22T14:35:27.716225408",
         "meta": {
-            "nf-test": "0.9.0",
-            "nextflow": "24.04.4"
-        },
-        "timestamp": "2024-09-17T09:16:31.501413"
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
     }
 }

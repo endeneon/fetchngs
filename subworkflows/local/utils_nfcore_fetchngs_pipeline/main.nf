@@ -8,15 +8,15 @@
 ========================================================================================
 */
 
-include { completionEmail         } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary       } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification          } from '../../nf-core/utils_nfcore_pipeline'
-include { paramsSummaryMap        } from 'plugin/nf-schema'
-include { samplesheetToList       } from 'plugin/nf-schema'
-include { paramsHelp              } from 'plugin/nf-schema'
-include { UTILS_NEXTFLOW_PIPELINE } from '../../nf-core/utils_nextflow_pipeline'
-include { UTILS_NFCORE_PIPELINE   } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFSCHEMA_PLUGIN   } from '../../nf-core/utils_nfschema_plugin'
+include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap          } from 'plugin/nf-schema'
+include { samplesheetToList         } from 'plugin/nf-schema'
+include { paramsHelp                } from 'plugin/nf-schema'
+include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,16 +26,17 @@ include { UTILS_NFSCHEMA_PLUGIN   } from '../../nf-core/utils_nfschema_plugin'
 
 workflow PIPELINE_INITIALISATION {
     take:
-    version             // boolean: Display version and exit
-    validate_params     // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs     // boolean: Do not use coloured log outputs
-    nextflow_cli_args   //   array: List of positional nextflow CLI args
-    outdir              //  string: The output directory where the results will be saved
-    input               //  string: File containing SRA/ENA/GEO/DDBJ identifiers one per line to download their associated metadata and FastQ files
-    help                // boolean: Display help message and exit
-    help_full           // boolean: Show the full help message
-    show_hidden         // boolean: Show hidden parameters in the help message
+
+    version           // boolean: Display version and exit
+    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs   // boolean: Do not use coloured log outputs
+    nextflow_cli_args //   array: List of positional nextflow CLI args
+    outdir            //  string: The output directory where the results will be saved
+    input             //  string: Path to input samplesheet
     ena_metadata_fields //  string: Comma-separated list of ENA metadata fields to fetch before downloading data
+    help              // boolean: Display help message and exit
+    help_full         // boolean: Show the full help message
+    show_hidden       // boolean: Show hidden parameters in the help message
 
     main:
 
@@ -104,7 +105,7 @@ workflow PIPELINE_INITIALISATION {
     // Read in ids from --input file
     channel.from(ch_input)
         .splitCsv(header: false, sep: '', strip: true)
-        .map { it[0] }
+        .map { row -> row[0] }
         .unique()
         .set { ch_ids }
 

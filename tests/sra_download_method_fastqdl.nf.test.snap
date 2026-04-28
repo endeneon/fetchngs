@@ -1,5 +1,5 @@
 {
-    "Parameters: --skip_fastq_download": {
+    "Parameters: --download_method fastq-dl": {
         "content": [
             "samplesheet.csv",
             [
@@ -14,8 +14,8 @@
                     "experiment_accession": "DRX026011",
                     "experiment_alias": "DRX026011",
                     "experiment_title": "Illumina HiSeq 2500 paired end sequencing: Illumina HiSeq 2500 paired end sequencing of SAMD00024405",
-                    "fastq_1": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_1.fastq.gz",
-                    "fastq_2": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_2.fastq.gz",
+                    "fastq_1": "DRR028935_1.fastq.gz:md5,f9b4a5d25aa7d6ab4050dbe0764eb04d",
+                    "fastq_2": "DRR028935_2.fastq.gz:md5,dc0d2e1fc46f4d4581a477f87ec3ff15",
                     "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/DRR028/DRR028935/DRR028935_1.fastq.gz;fasp.sra.ebi.ac.uk:/vol1/fastq/DRR028/DRR028935/DRR028935_2.fastq.gz",
                     "fastq_bytes": "60275;61610",
                     "fastq_ftp": "ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_1.fastq.gz;ftp.sra.ebi.ac.uk/vol1/fastq/DRR028/DRR028935/DRR028935_2.fastq.gz",
@@ -53,7 +53,7 @@
                     "experiment_accession": "SRX6725035",
                     "experiment_alias": "Emb289P1_bin131",
                     "experiment_title": "Illumina HiSeq 2500 sequencing: Binning of metagenomic reads from the P1 gut compartment of Embiratermes neotenicus",
-                    "fastq_1": "ftp.sra.ebi.ac.uk/vol1/fastq/SRR998/003/SRR9984183/SRR9984183.fastq.gz",
+                    "fastq_1": "SRR9984183.fastq.gz:md5,c9b4c2c4abf19da7082caf442fdefea7",
                     "fastq_2": "",
                     "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/SRR998/003/SRR9984183/SRR9984183.fastq.gz",
                     "fastq_bytes": "605358",
@@ -92,7 +92,7 @@
                     "experiment_accession": "ERX1234253",
                     "experiment_alias": "qiita_ptid_1263:10317.BLANK.93.3E.r22",
                     "experiment_title": "Illumina HiSeq 2500 sequencing: qiita_ptid_1263:10317.BLANK.93.3E.r22",
-                    "fastq_1": "ftp.sra.ebi.ac.uk/vol1/fastq/ERR116/006/ERR1160846/ERR1160846.fastq.gz",
+                    "fastq_1": "ERR1160846.fastq.gz:md5,b1de59f829fbd2d60a1ed4bc3da55709",
                     "fastq_2": "",
                     "fastq_aspera": "fasp.sra.ebi.ac.uk:/vol1/fastq/ERR116/006/ERR1160846/ERR1160846.fastq.gz",
                     "fastq_bytes": "18077",
@@ -127,16 +127,12 @@
                     "tax_id": "256318"
                 }
             ],
-            [
-                "versions.yml:md5,1496d1cbc9041e07ab8a0c25f0b054d9",
-                "versions.yml:md5,9b17045ca8bdc272cb3f9d349a81d206",
-                "versions.yml:md5,b52279f7d6b891a6523d9321f3f85b47"
-            ]
+            "nf_core_fetchngs_software_versions.yml"
         ],
+        "timestamp": "2026-04-14T11:58:43.441988431",
         "meta": {
-            "nf-test": "0.9.0",
-            "nextflow": "24.09.2"
-        },
-        "timestamp": "2024-10-15T13:38:24.154005"
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
     }
 }
