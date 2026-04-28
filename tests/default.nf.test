@@ -23,16 +23,14 @@ nextflow_pipeline {
             assert workflow.success
             assertAll(
                 { assert snapshot(
-                    // Number of successful tasks
-                    workflow.trace.succeeded().size(),
                     // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
-                    removeFromYamlMap("${params.outdir}/pipeline_info/nf_core_fetchngs_software_mqc_versions.yml", "Workflow"),
+                    removeFromYamlMap("${params.outdir}/pipeline_info/nf_core_fetchngs_software_versions.yml", "Workflow"),
                     // All stable path name, with a relative path
                     stable_name,
                     // All files with stable contents
                     stable_path,
                     // Samplesheet
-                    "samplesheet.csv:md5," + csv_file.sort().table.print().replaceAll(params.outdir, "").md5()
+                    "samplesheet.csv:md5," + csv_file.sort().table.collect { row -> [row.getString("sample"), row.getString("fastq_1").replaceAll(params.outdir, ""), row.getString("fastq_2").replaceAll(params.outdir, "")].join(",") }.join("\n").md5()
                 ).match() }
             )
         }

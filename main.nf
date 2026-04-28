@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { SRA                     } from './workflows/sra'
+include { FETCHNGS                } from './workflows/fetchngs'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_fetchngs_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_fetchngs_pipeline'
 /*
@@ -37,7 +37,7 @@ workflow NFCORE_FETCHNGS {
     //
     // WORKFLOW: Download FastQ files for SRA / ENA / GEO / DDBJ ids
     //
-    SRA ( ids )
+    FETCHNGS ( ids )
 
 }
 
@@ -60,7 +60,10 @@ workflow {
         args,
         params.outdir,
         params.input,
-        params.ena_metadata_fields
+        params.ena_metadata_fields,
+        params.help,
+        params.help_full,
+        params.show_hidden
     )
 
     //

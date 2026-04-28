@@ -16,6 +16,9 @@ nextflow_workflow {
                 nextflow_cli_args   = []
                 outdir              = 'results'
                 ena_metadata_fields = null
+                help        = false
+                help_full   = false
+                show_hidden = false
 
                 input[0] = version
                 input[1] = validate_params
@@ -24,6 +27,9 @@ nextflow_workflow {
                 input[4] = outdir
                 input[5] = 'https://raw.githubusercontent.com/nf-core/test-datasets/2732b911c57e607fa7aea5ba0c3d91b25bafb662/testdata/v1.12.0/sra_ids_test.csv'
                 input[6] = ena_metadata_fields
+                input[7] = help
+                input[8] = help_full
+                input[9] = show_hidden
                 """
             }
         }
