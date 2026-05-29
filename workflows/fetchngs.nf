@@ -60,7 +60,6 @@ workflow FETCHNGS {
     SRA_RUNINFO_TO_FTP
         .out
         .tsv
-        .filter { it.size() > 0 }
         .splitCsv(header:true, sep:'\t')
         .map {
             meta ->

@@ -19,9 +19,4 @@ process MULTIQC_MAPPINGS_CONFIG {
         $csv \\
         multiqc_config.yml
     """
-
-    stub:
-    """
-    touch multiqc_config.yml
-    """
 }
